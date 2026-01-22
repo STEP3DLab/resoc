@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ресоциализация — каталог образовательных программ</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#catalog">Перейти к каталогу</a>
+  <header class="hero">
+    <div class="container">
+      <p class="eyebrow">Проект «Ресоциализация»</p>
+      <h1>Каталог образовательных программ</h1>
+      <p class="lead">
+        Единое пространство для поиска образовательных программ, доступных участникам проекта.
+        Каталог обновляется на основе официальных данных и поддерживает быстрый поиск.
+      </p>
+    </div>
+  </header>
+
+  <main class="container" id="catalog">
+    <section class="controls" aria-label="Поиск и фильтры">
+      <label class="field">
+        <span>Поиск по названию программы</span>
+        <input id="searchInput" type="search" placeholder="Например, Информатика" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span>Формат обучения</span>
+        <select id="formatSelect">
+          <option value="">Все форматы</option>
+        </select>
+      </label>
+      <div class="stats" aria-live="polite">
+        Найдено программ: <span id="resultsCount">0</span>
+      </div>
+    </section>
+
+    <section class="grid" id="programGrid" aria-live="polite"></section>
+
+    <section class="empty-state" id="emptyState" hidden>
+      <h2>Программы не найдены</h2>
+      <p>Попробуйте изменить запрос или сбросить фильтр формата обучения.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Данные предоставлены для информационного использования. Проверяйте актуальность на сайте образовательной организации.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
