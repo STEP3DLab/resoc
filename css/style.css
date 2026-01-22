@@ -101,6 +101,38 @@ body {
   border-color: var(--primary);
 }
 
+.reset-button {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  align-self: end;
+}
+
+.reset-button:hover,
+.reset-button:focus {
+  background: #0a244a;
+  box-shadow: 0 6px 16px rgba(11, 44, 90, 0.2);
+  outline: none;
+}
+
+.reset-button:active {
+  transform: translateY(1px);
+}
+
+.reset-button:disabled {
+  background: #b8c4d6;
+  border-color: #b8c4d6;
+  color: #f4f6fa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .stats {
   text-align: right;
   font-weight: 600;
