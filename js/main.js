@@ -2,6 +2,7 @@ const DATA_URL = 'data/programs.csv';
 
 const searchInput = document.getElementById('searchInput');
 const formatSelect = document.getElementById('formatSelect');
+const resetFiltersButton = document.getElementById('resetFilters');
 const grid = document.getElementById('programGrid');
 const resultsCount = document.getElementById('resultsCount');
 const emptyState = document.getElementById('emptyState');
@@ -109,6 +110,11 @@ const renderPrograms = (items) => {
   emptyState.hidden = items.length > 0;
 };
 
+const updateResetButtonState = () => {
+  const hasFilters = searchInput.value.trim() !== '' || formatSelect.value !== '';
+  resetFiltersButton.disabled = !hasFilters;
+};
+
 const applyFilters = () => {
   const query = searchInput.value.trim().toLowerCase();
   const format = formatSelect.value;
@@ -120,6 +126,7 @@ const applyFilters = () => {
   });
 
   renderPrograms(filtered);
+  updateResetButtonState();
 };
 
 const populateFormats = () => {
@@ -145,6 +152,7 @@ const init = async () => {
     programs = parseCSV(text);
     populateFormats();
     renderPrograms(programs);
+    updateResetButtonState();
   } catch (error) {
     grid.innerHTML = '';
     emptyState.hidden = false;
@@ -153,6 +161,12 @@ const init = async () => {
   }
 };
 
+resetFiltersButton.addEventListener('click', () => {
+  searchInput.value = '';
+  formatSelect.value = '';
+  applyFilters();
+  searchInput.focus();
+});
 searchInput.addEventListener('input', applyFilters);
 formatSelect.addEventListener('change', applyFilters);
 
