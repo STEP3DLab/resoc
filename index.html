@@ -10,7 +10,22 @@
   <a class="skip-link" href="#catalog">Перейти к каталогу</a>
   <header class="hero">
     <div class="container">
-      <p class="eyebrow">Проект «Ресоциализация»</p>
+      <div class="hero-top">
+        <p class="eyebrow">Проект «Ресоциализация»</p>
+        <a
+          class="rgsu-logo"
+          href="https://rgsu.net/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Открыть сайт РГСУ"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/ru/archive/4/42/20240520114700%21%D0%A0%D0%93%D0%A1%D0%A3_%D0%BB%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF.png"
+            alt="Логотип РГСУ"
+            loading="lazy"
+          />
+        </a>
+      </div>
       <h1>Каталог образовательных программ</h1>
       <p class="lead">
         Единое пространство для поиска образовательных программ, доступных участникам проекта.
@@ -21,19 +36,62 @@
 
   <main class="container" id="catalog">
     <section class="controls" aria-label="Поиск и фильтры">
-      <label class="field">
-        <span>Поиск по названию программы</span>
-        <input id="searchInput" type="search" placeholder="Например, Информатика" autocomplete="off" />
-      </label>
-      <label class="field">
-        <span>Формат обучения</span>
-        <select id="formatSelect">
-          <option value="">Все форматы</option>
-        </select>
-      </label>
-      <button class="reset-button" type="button" id="resetFilters">Сбросить фильтры</button>
-      <div class="stats" aria-live="polite">
-        Найдено программ: <span id="resultsCount">0</span>
+      <div class="controls-header">
+        <div>
+          <h2>Поиск программы</h2>
+          <p>Уточните запрос и фильтры, чтобы быстро найти подходящее направление.</p>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div>
+            Показано программ: <span id="resultsCount">0</span> из <span id="totalCount">0</span>
+          </div>
+          <div class="active-filters" id="activeFilters" aria-label="Активные фильтры"></div>
+        </div>
+      </div>
+      <div class="controls-grid">
+        <label class="field search-field">
+          <span>Поиск по названию, вузу или коду ФГОС</span>
+          <div class="input-wrapper">
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Например, Информатика, 09.03.01 или Баумана"
+              autocomplete="off"
+            />
+            <button class="clear-button" type="button" id="clearSearch" aria-label="Очистить поиск">
+              ✕
+            </button>
+          </div>
+          <small class="helper">Совет: можно вводить несколько слов через пробел.</small>
+        </label>
+        <label class="field">
+          <span>Формат обучения</span>
+          <select id="formatSelect">
+            <option value="">Все форматы</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Направление</span>
+          <select id="directionSelect">
+            <option value="">Все направления</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Регион</span>
+          <select id="regionSelect">
+            <option value="">Все регионы</option>
+          </select>
+        </label>
+        <label class="field checkbox-field">
+          <span>Дополнительно</span>
+          <span class="checkbox-control">
+            <input id="budgetToggle" type="checkbox" />
+            Только с бюджетными местами
+          </span>
+        </label>
+        <div class="actions">
+          <button class="reset-button" type="button" id="resetFilters">Сбросить фильтры</button>
+        </div>
       </div>
     </section>
 

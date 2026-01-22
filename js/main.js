@@ -2,9 +2,15 @@ const DATA_URL = 'data/programs.csv';
 
 const searchInput = document.getElementById('searchInput');
 const formatSelect = document.getElementById('formatSelect');
+const directionSelect = document.getElementById('directionSelect');
+const regionSelect = document.getElementById('regionSelect');
+const budgetToggle = document.getElementById('budgetToggle');
 const resetFiltersButton = document.getElementById('resetFilters');
+const clearSearchButton = document.getElementById('clearSearch');
 const grid = document.getElementById('programGrid');
 const resultsCount = document.getElementById('resultsCount');
+const totalCount = document.getElementById('totalCount');
+const activeFilters = document.getElementById('activeFilters');
 const emptyState = document.getElementById('emptyState');
 
 let programs = [];
@@ -65,6 +71,21 @@ const createCard = (program) => {
   const card = document.createElement('article');
   card.className = 'card';
 
+  const badges = document.createElement('div');
+  badges.className = 'card-badges';
+
+  const formatBadge = document.createElement('span');
+  formatBadge.className = 'badge';
+  formatBadge.textContent = program.education_level || 'Формат не указан';
+  badges.append(formatBadge);
+
+  if (program.budget_seat?.toLowerCase() === 'да') {
+    const budgetBadge = document.createElement('span');
+    budgetBadge.className = 'badge accent';
+    budgetBadge.textContent = 'Есть бюджет';
+    badges.append(budgetBadge);
+  }
+
   const title = document.createElement('h3');
   title.textContent = program.program_name || 'Без названия';
 
@@ -99,7 +120,7 @@ const createCard = (program) => {
     link.removeAttribute('rel');
   }
 
-  card.append(title, institution, meta, link);
+  card.append(badges, title, institution, meta, link);
   return card;
 };
 
@@ -111,22 +132,93 @@ const renderPrograms = (items) => {
 };
 
 const updateResetButtonState = () => {
-  const hasFilters = searchInput.value.trim() !== '' || formatSelect.value !== '';
+  const hasFilters =
+    searchInput.value.trim() !== '' ||
+    formatSelect.value !== '' ||
+    directionSelect.value !== '' ||
+    regionSelect.value !== '' ||
+    budgetToggle.checked;
   resetFiltersButton.disabled = !hasFilters;
 };
 
+const toggleClearButton = () => {
+  const shouldShow = searchInput.value.trim() !== '';
+  clearSearchButton.classList.toggle('is-visible', shouldShow);
+};
+
+const normalizeText = (value) => (value || '').toString().toLowerCase();
+
+const updateActiveFilters = () => {
+  const filters = [];
+
+  if (searchInput.value.trim()) {
+    filters.push(`Запрос: ${searchInput.value.trim()}`);
+  }
+  if (formatSelect.value) {
+    filters.push(`Формат: ${formatSelect.value}`);
+  }
+  if (directionSelect.value) {
+    filters.push(`Направление: ${directionSelect.value}`);
+  }
+  if (regionSelect.value) {
+    filters.push(`Регион: ${regionSelect.value}`);
+  }
+  if (budgetToggle.checked) {
+    filters.push('Только бюджетные места');
+  }
+
+  activeFilters.innerHTML = '';
+  if (filters.length === 0) {
+    const chip = document.createElement('span');
+    chip.className = 'filter-chip';
+    chip.textContent = 'Фильтры не заданы';
+    activeFilters.append(chip);
+    return;
+  }
+
+  filters.forEach((label) => {
+    const chip = document.createElement('span');
+    chip.className = 'filter-chip';
+    chip.textContent = label;
+    activeFilters.append(chip);
+  });
+};
+
 const applyFilters = () => {
-  const query = searchInput.value.trim().toLowerCase();
+  const query = normalizeText(searchInput.value.trim());
   const format = formatSelect.value;
+  const direction = directionSelect.value;
+  const region = regionSelect.value;
+  const budgetOnly = budgetToggle.checked;
 
   const filtered = programs.filter((program) => {
-    const matchesQuery = program.program_name?.toLowerCase().includes(query);
+    const haystack = [
+      program.program_name,
+      program.institution_name,
+      program.fgos_code,
+      program.macrogroup_name,
+    ]
+      .map(normalizeText)
+      .join(' ');
+    const queryTokens = query.split(/\s+/).filter(Boolean);
+    const matchesQuery = queryTokens.every((token) => haystack.includes(token));
     const matchesFormat = !format || program.education_level === format;
-    return matchesQuery && matchesFormat;
+    const matchesDirection = !direction || program.macrogroup_name === direction;
+    const matchesRegion = !region || program.region === region;
+    const matchesBudget = !budgetOnly || normalizeText(program.budget_seat) === 'да';
+    return (
+      matchesQuery &&
+      matchesFormat &&
+      matchesDirection &&
+      matchesRegion &&
+      matchesBudget
+    );
   });
 
   renderPrograms(filtered);
   updateResetButtonState();
+  updateActiveFilters();
+  toggleClearButton();
 };
 
 const populateFormats = () => {
@@ -142,6 +234,32 @@ const populateFormats = () => {
   });
 };
 
+const populateDirections = () => {
+  const directions = Array.from(
+    new Set(programs.map((program) => program.macrogroup_name).filter(Boolean))
+  ).sort();
+
+  directions.forEach((direction) => {
+    const option = document.createElement('option');
+    option.value = direction;
+    option.textContent = direction;
+    directionSelect.append(option);
+  });
+};
+
+const populateRegions = () => {
+  const regions = Array.from(
+    new Set(programs.map((program) => program.region).filter(Boolean))
+  ).sort();
+
+  regions.forEach((region) => {
+    const option = document.createElement('option');
+    option.value = region;
+    option.textContent = region;
+    regionSelect.append(option);
+  });
+};
+
 const init = async () => {
   try {
     const response = await fetch(DATA_URL, { cache: 'no-store' });
@@ -151,8 +269,13 @@ const init = async () => {
     const text = await response.text();
     programs = parseCSV(text);
     populateFormats();
+    populateDirections();
+    populateRegions();
+    totalCount.textContent = programs.length;
     renderPrograms(programs);
     updateResetButtonState();
+    updateActiveFilters();
+    toggleClearButton();
   } catch (error) {
     grid.innerHTML = '';
     emptyState.hidden = false;
@@ -164,10 +287,21 @@ const init = async () => {
 resetFiltersButton.addEventListener('click', () => {
   searchInput.value = '';
   formatSelect.value = '';
+  directionSelect.value = '';
+  regionSelect.value = '';
+  budgetToggle.checked = false;
   applyFilters();
   searchInput.focus();
 });
 searchInput.addEventListener('input', applyFilters);
 formatSelect.addEventListener('change', applyFilters);
+directionSelect.addEventListener('change', applyFilters);
+regionSelect.addEventListener('change', applyFilters);
+budgetToggle.addEventListener('change', applyFilters);
+clearSearchButton.addEventListener('click', () => {
+  searchInput.value = '';
+  applyFilters();
+  searchInput.focus();
+});
 
 init();
