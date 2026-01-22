@@ -162,6 +162,12 @@ body {
   color: var(--text);
 }
 
+.field input[type="search"]::-webkit-search-cancel-button,
+.field input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .field input:focus,
 .field select:focus {
   outline: 3px solid rgba(11, 44, 90, 0.25);
@@ -386,6 +392,25 @@ body {
   border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+@media (max-width: 960px) {
+  .controls-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats {
+    text-align: left;
+  }
+
+  .active-filters {
+    justify-content: flex-start;
+  }
+
+  .controls-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
