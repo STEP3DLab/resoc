@@ -148,6 +148,39 @@ const toggleClearButton = () => {
 
 const normalizeText = (value) => (value || '').toString().toLowerCase();
 
+const normalizeForSearch = (value) =>
+  normalizeText(value)
+    .replace(/ё/g, 'е')
+    .replace(/[^a-z0-9а-я]+/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const buildInitials = (value) => {
+  const words = (value || '').toString().match(/[A-Za-zА-Яа-яЁё]+/g) || [];
+  const initials = words
+    .filter((word) => word.length > 2)
+    .map((word) => word[0])
+    .join('');
+  return normalizeForSearch(initials);
+};
+
+const buildSearchIndex = (program) => {
+  const parts = [
+    program.program_name,
+    program.institution_name,
+    program.fgos_code,
+    program.macrogroup_name,
+  ];
+  const base = normalizeForSearch(parts.join(' '));
+  const initials = [
+    buildInitials(program.institution_name),
+    buildInitials(program.program_name),
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return `${base} ${initials}`.trim();
+};
+
 const updateActiveFilters = () => {
   const filters = [];
 
@@ -185,21 +218,14 @@ const updateActiveFilters = () => {
 };
 
 const applyFilters = () => {
-  const query = normalizeText(searchInput.value.trim());
+  const query = normalizeForSearch(searchInput.value.trim());
   const format = formatSelect.value;
   const direction = directionSelect.value;
   const region = regionSelect.value;
   const budgetOnly = budgetToggle.checked;
 
   const filtered = programs.filter((program) => {
-    const haystack = [
-      program.program_name,
-      program.institution_name,
-      program.fgos_code,
-      program.macrogroup_name,
-    ]
-      .map(normalizeText)
-      .join(' ');
+    const haystack = program.searchIndex || '';
     const queryTokens = query.split(/\s+/).filter(Boolean);
     const matchesQuery = queryTokens.every((token) => haystack.includes(token));
     const matchesFormat = !format || program.education_level === format;
@@ -267,7 +293,10 @@ const init = async () => {
       throw new Error('Не удалось загрузить данные CSV');
     }
     const text = await response.text();
-    programs = parseCSV(text);
+    programs = parseCSV(text).map((program) => ({
+      ...program,
+      searchIndex: buildSearchIndex(program),
+    }));
     populateFormats();
     populateDirections();
     populateRegions();
