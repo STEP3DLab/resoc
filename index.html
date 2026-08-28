@@ -26,11 +26,19 @@
   <main id="main">
     <section class="hero" id="top">
       <div class="shell hero-copy">
-        <div><span class="eyebrow">Образовательный навигатор</span><h1>Найдите подходящий путь обучения за четыре шага</h1></div>
-        <p>Опишите цель и опыт. Навигатор уточнит условия, предложит варианты и объяснит каждую рекомендацию.</p>
+        <div><span class="eyebrow">Образовательный навигатор РГСУ</span><h1>От опыта — к новой профессиональной траектории</h1></div>
+        <div class="hero-summary"><p>Опишите цель и условия. Навигатор предложит программы, объяснит основания и подскажет следующий шаг.</p><div><span>3–5 минут</span><span>Без регистрации</span></div></div>
       </div>
 
       <div class="shell wizard" aria-labelledby="wizard-title">
+        <aside class="wizard-context" aria-label="О сервисе подбора">
+          <span class="wizard-context-badge">Предварительный подбор</span>
+          <h2>Рекомендация, которую можно проверить</h2>
+          <p>Сервис учитывает не только интерес, но и образование, формат, регион и ограничения.</p>
+          <ul><li><strong>Понятное обоснование</strong><small>почему программа попала в результат</small></li><li><strong>Условия важнее рейтинга</strong><small>сначала обязательные ограничения</small></li><li><strong>Специалист на связи</strong><small>неясные случаи можно обсудить</small></li></ul>
+          <div class="wizard-context-note">В прототипе ответы не отправляются и не сохраняются.</div>
+        </aside>
+        <div class="wizard-main">
         <div class="wizard-head">
           <div class="navigator-mark" aria-hidden="true">Н</div>
           <div><strong id="wizard-title">Навигатор РГСУ</strong><small>предварительный подбор</small></div>
@@ -52,6 +60,7 @@
               <label class="goal-card"><input type="radio" name="goal" value="continue"><span><strong>Продолжить образование</strong><small>последовательный образовательный путь</small></span></label>
             </fieldset>
             <label class="field field--wide"><span>Исходная ситуация</span><textarea id="request" rows="4" placeholder="Например: работал с техникой и руководил небольшой командой; хочу освоить гражданскую специальность без отрыва от работы"></textarea><small>Не указывайте сведения о здоровье, документах, службе и другие чувствительные данные.</small><em class="error" id="requestError" role="alert"></em></label>
+            <div class="request-examples" aria-label="Примеры описания ситуации"><span>Можно начать с примера</span><div><button type="button" data-request-example="Работал с техникой, хочу получить гражданскую специальность без отрыва от работы">Пример 1</button><button type="button" data-request-example="Есть опыт управления командой, хочу продолжить его в новой профессиональной сфере">Пример 2</button><button type="button" data-request-example="Хочу быстро освоить востребованную профессию и выйти на работу">Пример 3</button></div></div>
           </section>
 
           <section class="wizard-step" data-step="2">
@@ -81,20 +90,14 @@
 
           <div class="wizard-actions"><button class="button button--ghost" type="button" id="backButton" hidden>Назад</button><button class="button" type="button" id="nextButton">Продолжить</button></div>
         </form>
-      </div>
-    </section>
-
-    <section class="inclusive" id="accessibility">
-      <div class="shell inclusive-grid">
-        <div><span class="section-number">Доступность</span><h2>Один интерфейс — разные способы работы</h2><p>Не нужно сообщать диагноз. Выберите удобный профиль или настройте отображение вручную — настройки сохраняются только на этом устройстве.</p><button class="button button--ghost" id="accessibilitySectionButton" type="button">Настроить интерфейс</button></div>
-        <div class="inclusive-cards"><article><strong>Зрение</strong><small>крупный текст, высокий контраст, подчёркнутые ссылки</small></article><article><strong>Моторика</strong><small>крупные цели, клавиатура, отсутствие таймеров</small></article><article><strong>Когнитивные особенности</strong><small>один шаг за раз, простой язык, меньше деталей</small></article><article><strong>Слух и речь</strong><small>текстовые инструкции; звук и голос не обязательны</small></article></div>
+        </div>
       </div>
     </section>
 
     <section class="recommendations" id="recommendations">
       <div class="shell section-head"><div><span class="section-number">01</span><h2>Персональные рекомендации</h2><p id="recommendationIntro">Пройдите четыре шага — навигатор покажет три варианта и объяснит основания выбора.</p></div><span class="result-count" id="recommendationCount">4 шага</span></div>
       <div class="shell recommendation-placeholder" id="recommendationPlaceholder"><span aria-hidden="true">✓</span><div><strong>Проверяемая логика вместо случайного совета</strong><p>Сначала навигатор учитывает обязательные условия, затем формирует ранжированный список и показывает причины.</p></div><a class="button" href="#top">Начать подбор</a></div>
-      <div class="shell recommendation-grid" id="recommendationGrid" hidden></div>
+      <div class="shell recommendation-grid recommendation-grid--ranked" id="recommendationGrid" hidden></div>
     </section>
 
     <section class="catalog" id="catalog">
@@ -113,6 +116,13 @@
     <section class="route">
       <div class="shell section-head section-head--light"><div><span class="section-number">03</span><h2>От выбора — к следующему действию</h2><p>Сервис соединяет подбор с консультацией, поступлением, обучением и занятостью.</p></div></div>
       <ol class="shell route-list"><li><span>01</span><strong>Уточнение</strong><small>цель и условия</small></li><li><span>02</span><strong>Подбор</strong><small>варианты и причины</small></li><li><span>03</span><strong>Поступление</strong><small>документы и поддержка</small></li><li><span>04</span><strong>Обучение</strong><small>практика и сопровождение</small></li><li><span>05</span><strong>Занятость</strong><small>работодатель или рост</small></li></ol>
+    </section>
+
+    <section class="inclusive" id="accessibility">
+      <div class="shell inclusive-grid">
+        <div><span class="section-number">Доступность</span><h2>Интерфейс подстраивается под пользователя</h2><p>Не нужно сообщать диагноз. Выберите удобный профиль или настройте отображение вручную — настройки сохраняются только на этом устройстве.</p><button class="button button--ghost" id="accessibilitySectionButton" type="button">Настроить интерфейс</button></div>
+        <div class="inclusive-cards"><article><strong>Зрение</strong><small>крупный текст, высокий контраст, подчёркнутые ссылки</small></article><article><strong>Моторика</strong><small>крупные цели, клавиатура, отсутствие таймеров</small></article><article><strong>Когнитивные особенности</strong><small>один шаг за раз, простой язык, меньше деталей</small></article><article><strong>Слух и речь</strong><small>текстовые инструкции; звук и голос не обязательны</small></article></div>
+      </div>
     </section>
 
     <section class="consultation" id="consultation">

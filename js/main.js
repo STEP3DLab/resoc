@@ -176,3 +176,16 @@ $$('[data-profile]').forEach(button=>button.addEventListener("click",()=>{
 }));
 $("#resetAccessibility").addEventListener("click",()=>{accessibilitySettings={...accessibilityDefaults};applyAccessibility()});
 applyAccessibility();
+
+
+document.querySelectorAll("[data-request-example]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const requestField = document.getElementById("request");
+    const requestError = document.getElementById("requestError");
+    if (requestField) {
+      requestField.value = button.dataset.requestExample || "";
+      requestField.focus();
+    }
+    if (requestError) requestError.textContent = "";
+  });
+});
