@@ -1,336 +1,141 @@
-const DATA_URL = 'data/programs.csv';
+"use strict";
 
-const searchInput = document.getElementById('searchInput');
-const formatSelect = document.getElementById('formatSelect');
-const directionSelect = document.getElementById('directionSelect');
-const regionSelect = document.getElementById('regionSelect');
-const budgetToggle = document.getElementById('budgetToggle');
-const resetFiltersButton = document.getElementById('resetFilters');
-const clearSearchButton = document.getElementById('clearSearch');
-const grid = document.getElementById('programGrid');
-const resultsCount = document.getElementById('resultsCount');
-const totalCount = document.getElementById('totalCount');
-const activeFilters = document.getElementById('activeFilters');
-const emptyState = document.getElementById('emptyState');
+const featuredPrograms = [
+  {title:"Информационные системы и технологии",owner:"РГСУ",level:"ВО",region:"Москва",format:"Очно-заочно",macro:"IT и цифровые технологии",duration:"4 года 6 месяцев",priority:true,reasons:["соответствует цели смены профессиональной области","позволяет учитывать технический опыт","совместима с занятостью"],result:"Квалификация бакалавра; работа в разработке, аналитике или сопровождении ИТ-систем.",caution:"Необходимо проверить вступительные испытания и расписание.",scores:{fast:78,new:92,continue:96}},
+  {title:"Социальная работа",owner:"РГСУ",level:"ВО",region:"Москва",format:"Очно",macro:"Образование, социальная сфера и психология",duration:"4 года",priority:true,reasons:["опирается на коммуникативный опыт","связана с общественно значимой деятельностью","предусматривает понятный путь роста"],result:"Работа в социальной защите, НКО, реабилитационных и государственных организациях.",caution:"Очный формат необходимо сопоставить с текущей занятостью.",scores:{fast:72,new:88,continue:94}},
+  {title:"Право и организация социального обеспечения",owner:"Колледж РГСУ",level:"СПО",region:"Москва",format:"Очно",macro:"Право, управление и коммуникации",duration:"2 года 10 месяцев",priority:true,reasons:["даёт прикладную квалификацию","связана с системой социальной поддержки","позволяет продолжить обучение в РГСУ"],result:"Квалификация юриста в сфере социального обеспечения.",caution:"Требуется уточнить форму и основание приёма.",scores:{fast:84,new:95,continue:88}},
+  {title:"Оператор беспилотных авиационных систем",owner:"Образовательная организация-партнёр",level:"СПО",region:"ПФО",format:"Очно",macro:"Транспорт и беспилотные системы",duration:"1 год 10 месяцев",priority:false,reasons:["может соответствовать техническому опыту","имеет практико-ориентированный профиль","предполагает относительно короткий путь к профессии"],result:"Эксплуатация, обслуживание и контроль беспилотных авиационных систем.",caution:"Владелец и условия программы должны быть подтверждены.",scores:{fast:93,new:94,continue:76}},
+  {title:"Управление проектами",owner:"РГСУ",level:"ДПО",region:"Москва",format:"Онлайн",macro:"Право, управление и коммуникации",duration:"4 месяца",priority:true,reasons:["короткий срок обучения","позволяет перенести управленческий опыт","доступен дистанционный формат"],result:"Планирование, управление командой, сроками, бюджетом и рисками проекта.",caution:"ДПО включается в первый запуск только после отдельного согласования.",scores:{fast:96,new:85,continue:82}},
+  {title:"Техник по аддитивным технологиям",owner:"Образовательная организация-партнёр",level:"СПО",region:"УФО",format:"Очно",macro:"Машиностроение и производственные технологии",duration:"2 года 10 месяцев",priority:false,reasons:["связана с производственными навыками","относится к современной технической специализации","предполагает практическое обучение"],result:"Подготовка и сопровождение процессов промышленной 3D-печати.",caution:"Нужно подтвердить организацию, набор и регион обучения.",scores:{fast:86,new:91,continue:74}}
+];
 
-let programs = [];
+const goals={fast:"Выйти на работу быстрее",new:"Получить новую профессию",continue:"Продолжить образование"};
+const educationLabels={"not-set":"Уточнить позднее",school:"Среднее общее",spo:"Среднее профессиональное",vo:"Высшее"};
+let currentStep=1;
+let catalogPrograms=[];
+let shownCount=20;
 
-const parseCSV = (text, delimiter = ';') => {
-  const rows = [];
-  let current = '';
-  let row = [];
-  let insideQuotes = false;
+const $=(selector,root=document)=>root.querySelector(selector);
+const $$=(selector,root=document)=>Array.from(root.querySelectorAll(selector));
 
-  for (let i = 0; i < text.length; i += 1) {
-    const char = text[i];
-    const next = text[i + 1];
+function updateGoalCards(){
+  $$(".goal-card").forEach(card=>card.classList.toggle("is-selected",$("input",card).checked));
+}
 
-    if (char === '"') {
-      if (insideQuotes && next === '"') {
-        current += '"';
-        i += 1;
-      } else {
-        insideQuotes = !insideQuotes;
-      }
-    } else if (char === delimiter && !insideQuotes) {
-      row.push(current);
-      current = '';
-    } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-      if (char === '\r' && next === '\n') {
-        i += 1;
-      }
-      row.push(current);
-      if (row.some((value) => value.trim() !== '')) {
-        rows.push(row);
-      }
-      row = [];
-      current = '';
-    } else {
-      current += char;
-    }
-  }
+function extractSignals(){
+  const text=`${$("#request").value} ${$("#experience").value}`.toLowerCase();
+  const signals=[];
+  if(/техник|оборуд|ремонт|инжен|связ|беспилот/.test(text))signals.push("технический опыт");
+  if(/руковод|управл|команд|организ/.test(text))signals.push("управленческий опыт");
+  if(/социал|помощ|люд|консульт/.test(text))signals.push("работа с людьми");
+  if(/быстр|корот|скорее/.test(text))signals.push("приоритет короткого срока");
+  if(/онлайн|дистан/.test(text))signals.push("дистанционный формат");
+  if(!signals.length)signals.push("цель сформулирована","опыт требует уточнения");
+  $("#signals").innerHTML=signals.map(item=>`<span>${escapeHtml(item)}</span>`).join("");
+}
 
-  if (current.length || row.length) {
-    row.push(current);
-    if (row.some((value) => value.trim() !== '')) {
-      rows.push(row);
-    }
-  }
+function wizardData(){
+  return {goal:$("input[name=goal]:checked").value,request:$("#request").value.trim(),education:$("#education").value,experience:$("#experience").value.trim(),district:$("#district").value,format:$("#studyFormat").value};
+}
 
-  const headers = rows.shift().map((header) => header.trim());
-  return rows.map((values) => {
-    const entry = {};
-    headers.forEach((header, index) => {
-      entry[header] = (values[index] || '').trim();
-    });
-    return entry;
-  });
-};
+function buildSummary(){
+  const data=wizardData();
+  const rows=[["Цель",goals[data.goal]],["Исходная ситуация",data.request],["Образование",educationLabels[data.education]],["Опыт",data.experience||"не указан"],["Регион",data.district==="all"?"любой / онлайн":data.district],["Формат",data.format==="all"?"любой":data.format]];
+  $("#summary").innerHTML=rows.map(([key,value])=>`<dt>${key}</dt><dd>${escapeHtml(value)}</dd>`).join("");
+}
 
-const createCard = (program) => {
-  const card = document.createElement('article');
-  card.className = 'card';
+function setStep(step){
+  currentStep=step;
+  $$(".wizard-step").forEach(section=>section.classList.toggle("is-active",Number(section.dataset.step)===step));
+  $$(".stepper li").forEach((item,index)=>{item.classList.toggle("is-active",index+1===step);item.classList.toggle("is-done",index+1<step);$("span",item).textContent=index+1<step?"✓":String(index+1)});
+  $("#stepBadge").textContent=`шаг ${step} из 4`;
+  $("#backButton").hidden=step===1;
+  $("#nextButton").textContent=step===4?"Получить варианты":"Продолжить";
+  if(step===2)extractSignals();
+  if(step===4)buildSummary();
+  $(".wizard").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+}
 
-  const badges = document.createElement('div');
-  badges.className = 'card-badges';
+function renderRecommendations(){
+  const data=wizardData();
+  const ranked=featuredPrograms.map(program=>({...program,score:program.scores[data.goal]+(data.format!=="all"&&program.format===data.format?4:0)+(data.district!=="all"&&(program.region===data.district||program.region.includes(data.district))?3:0)})).sort((a,b)=>b.score-a.score).slice(0,3);
+  $("#recommendationPlaceholder").hidden=true;
+  $("#recommendationGrid").hidden=false;
+  $("#recommendationCount").textContent="3 варианта";
+  $("#recommendationIntro").textContent="Предварительные варианты по указанным условиям. Откройте карточку, чтобы увидеть причины и ограничения.";
+  $("#recommendationGrid").innerHTML=ranked.map((program,index)=>`<article class="recommendation-card ${program.priority?"featured":""}"><div class="card-top"><span class="rank">0${index+1}</span><span class="quality">${qualityLabel(program.score)}</span></div><span class="provider ${program.priority?"rgsu":""}">${program.priority?"РГСУ · приоритет среди релевантных":"Партнёрская программа"}</span><h3>${escapeHtml(program.title)}</h3><p>${escapeHtml(program.owner)}</p><div class="meta"><span>${program.level}</span><span>${program.format}</span><span>${program.duration}</span></div><div class="reason">${escapeHtml(program.reasons[0])}</div><button class="button button--ghost" type="button" data-featured="${featuredPrograms.findIndex(item=>item.title===program.title)}">Открыть обоснование</button></article>`).join("");
+  $$("[data-featured]").forEach(button=>button.addEventListener("click",()=>openProgram(featuredPrograms[Number(button.dataset.featured)])));
+  $("#recommendations").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
 
-  const formatBadge = document.createElement('span');
-  formatBadge.className = 'badge';
-  formatBadge.textContent = program.education_level || 'Формат не указан';
-  badges.append(formatBadge);
+function qualityLabel(score){return score>=91?"Высокая предварительная релевантность":score>=82?"Умеренная предварительная релевантность":"Требуется проверка"}
 
-  if (program.budget_seat?.toLowerCase() === 'да') {
-    const budgetBadge = document.createElement('span');
-    budgetBadge.className = 'badge accent';
-    budgetBadge.textContent = 'Есть бюджет';
-    badges.append(budgetBadge);
-  }
-
-  const title = document.createElement('h3');
-  title.textContent = program.program_name || 'Без названия';
-
-  const institution = document.createElement('p');
-  institution.textContent = program.institution_name || 'Организация не указана';
-
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-
-  const metaItems = [
-    ['Формат обучения', program.education_level || '—'],
-    ['Направление', program.macrogroup_name || '—'],
-    ['Код ФГОС', program.fgos_code || '—'],
-    ['Регион', program.region || '—'],
-    ['Бюджетные места', program.budget_seat || '—'],
-  ];
-
-  metaItems.forEach(([label, value]) => {
-    const line = document.createElement('p');
-    line.innerHTML = `${label}: <span>${value}</span>`;
-    meta.append(line);
-  });
-
-  const link = document.createElement('a');
-  link.href = program.URL || '#';
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = 'Перейти к программе';
-
-  if (!program.URL) {
-    link.removeAttribute('target');
-    link.removeAttribute('rel');
-  }
-
-  card.append(badges, title, institution, meta, link);
-  return card;
-};
-
-const renderPrograms = (items) => {
-  grid.innerHTML = '';
-  items.forEach((program) => grid.append(createCard(program)));
-  resultsCount.textContent = items.length;
-  emptyState.hidden = items.length > 0;
-};
-
-const updateResetButtonState = () => {
-  const hasFilters =
-    searchInput.value.trim() !== '' ||
-    formatSelect.value !== '' ||
-    directionSelect.value !== '' ||
-    regionSelect.value !== '' ||
-    budgetToggle.checked;
-  resetFiltersButton.disabled = !hasFilters;
-};
-
-const toggleClearButton = () => {
-  const shouldShow = searchInput.value.trim() !== '';
-  clearSearchButton.classList.toggle('is-visible', shouldShow);
-};
-
-const normalizeText = (value) => (value || '').toString().toLowerCase();
-
-const normalizeForSearch = (value) =>
-  normalizeText(value)
-    .replace(/ё/g, 'е')
-    .replace(/[^a-z0-9а-я]+/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const buildInitials = (value) => {
-  const words = (value || '').toString().match(/[A-Za-zА-Яа-яЁё]+/g) || [];
-  const initials = words
-    .filter((word) => word.length > 2)
-    .map((word) => word[0])
-    .join('');
-  return normalizeForSearch(initials);
-};
-
-const buildSearchIndex = (program) => {
-  const parts = [
-    program.program_name,
-    program.institution_name,
-    program.fgos_code,
-    program.macrogroup_name,
-  ];
-  const base = normalizeForSearch(parts.join(' '));
-  const initials = [
-    buildInitials(program.institution_name),
-    buildInitials(program.program_name),
-  ]
-    .filter(Boolean)
-    .join(' ');
-  return `${base} ${initials}`.trim();
-};
-
-const updateActiveFilters = () => {
-  const filters = [];
-
-  if (searchInput.value.trim()) {
-    filters.push(`Запрос: ${searchInput.value.trim()}`);
-  }
-  if (formatSelect.value) {
-    filters.push(`Формат: ${formatSelect.value}`);
-  }
-  if (directionSelect.value) {
-    filters.push(`Направление: ${directionSelect.value}`);
-  }
-  if (regionSelect.value) {
-    filters.push(`Регион: ${regionSelect.value}`);
-  }
-  if (budgetToggle.checked) {
-    filters.push('Только бюджетные места');
-  }
-
-  activeFilters.innerHTML = '';
-  if (filters.length === 0) {
-    const chip = document.createElement('span');
-    chip.className = 'filter-chip';
-    chip.textContent = 'Фильтры не заданы';
-    activeFilters.append(chip);
-    return;
-  }
-
-  filters.forEach((label) => {
-    const chip = document.createElement('span');
-    chip.className = 'filter-chip';
-    chip.textContent = label;
-    activeFilters.append(chip);
-  });
-};
-
-const applyFilters = () => {
-  const query = normalizeForSearch(searchInput.value.trim());
-  const format = formatSelect.value;
-  const direction = directionSelect.value;
-  const region = regionSelect.value;
-  const budgetOnly = budgetToggle.checked;
-
-  const filtered = programs.filter((program) => {
-    const haystack = program.searchIndex || '';
-    const queryTokens = query.split(/\s+/).filter(Boolean);
-    const matchesQuery = queryTokens.every((token) => haystack.includes(token));
-    const matchesFormat = !format || program.education_level === format;
-    const matchesDirection = !direction || program.macrogroup_name === direction;
-    const matchesRegion = !region || program.region === region;
-    const matchesBudget = !budgetOnly || normalizeText(program.budget_seat) === 'да';
-    return (
-      matchesQuery &&
-      matchesFormat &&
-      matchesDirection &&
-      matchesRegion &&
-      matchesBudget
-    );
-  });
-
-  renderPrograms(filtered);
-  updateResetButtonState();
-  updateActiveFilters();
-  toggleClearButton();
-};
-
-const populateFormats = () => {
-  const formats = Array.from(
-    new Set(programs.map((program) => program.education_level).filter(Boolean))
-  ).sort();
-
-  formats.forEach((format) => {
-    const option = document.createElement('option');
-    option.value = format;
-    option.textContent = format;
-    formatSelect.append(option);
-  });
-};
-
-const populateDirections = () => {
-  const directions = Array.from(
-    new Set(programs.map((program) => program.macrogroup_name).filter(Boolean))
-  ).sort();
-
-  directions.forEach((direction) => {
-    const option = document.createElement('option');
-    option.value = direction;
-    option.textContent = direction;
-    directionSelect.append(option);
-  });
-};
-
-const populateRegions = () => {
-  const regions = Array.from(
-    new Set(programs.map((program) => program.region).filter(Boolean))
-  ).sort();
-
-  regions.forEach((region) => {
-    const option = document.createElement('option');
-    option.value = region;
-    option.textContent = region;
-    regionSelect.append(option);
-  });
-};
-
-const init = async () => {
-  try {
-    const response = await fetch(DATA_URL, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error('Не удалось загрузить данные CSV');
-    }
-    const text = await response.text();
-    programs = parseCSV(text).map((program) => ({
-      ...program,
-      searchIndex: buildSearchIndex(program),
-    }));
-    populateFormats();
-    populateDirections();
-    populateRegions();
-    totalCount.textContent = programs.length;
-    renderPrograms(programs);
-    updateResetButtonState();
-    updateActiveFilters();
-    toggleClearButton();
-  } catch (error) {
-    grid.innerHTML = '';
-    emptyState.hidden = false;
-    emptyState.querySelector('h2').textContent = 'Ошибка загрузки данных';
-    emptyState.querySelector('p').textContent = error.message;
-  }
-};
-
-resetFiltersButton.addEventListener('click', () => {
-  searchInput.value = '';
-  formatSelect.value = '';
-  directionSelect.value = '';
-  regionSelect.value = '';
-  budgetToggle.checked = false;
-  applyFilters();
-  searchInput.focus();
+$("#nextButton").addEventListener("click",()=>{
+  if(currentStep===1&&$("#request").value.trim().length<12){$("#requestError").textContent="Опишите ситуацию немного подробнее — не менее 12 знаков.";$("#request").focus();return}
+  $("#requestError").textContent="";
+  if(currentStep===4){if(!$("#confirm").checked){$("#confirmError").textContent="Подтвердите ознакомление с ограничением прототипа.";$("#confirm").focus();return}renderRecommendations();return}
+  setStep(currentStep+1);
 });
-searchInput.addEventListener('input', applyFilters);
-formatSelect.addEventListener('change', applyFilters);
-directionSelect.addEventListener('change', applyFilters);
-regionSelect.addEventListener('change', applyFilters);
-budgetToggle.addEventListener('change', applyFilters);
-clearSearchButton.addEventListener('click', () => {
-  searchInput.value = '';
-  applyFilters();
-  searchInput.focus();
-});
+$("#backButton").addEventListener("click",()=>setStep(Math.max(1,currentStep-1)));
+$$("input[name=goal]").forEach(input=>input.addEventListener("change",updateGoalCards));
+$("#experience").addEventListener("input",extractSignals);
+$("#confirm").addEventListener("change",()=>$("#confirmError").textContent="");
 
-init();
+function parseCsv(text){
+  const rows=[];let row=[],field="",quoted=false;
+  for(let i=0;i<text.length;i++){const char=text[i];if(char==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++}else quoted=!quoted}else if(char===';'&&!quoted){row.push(field.trim());field=""}else if((char==='\n'||char==='\r')&&!quoted){if(char==='\r'&&text[i+1]==='\n')i++;row.push(field.trim());field="";if(row.some(Boolean))rows.push(row);row=[]}else field+=char}
+  if(field||row.length){row.push(field.trim());rows.push(row)}
+  const headers=rows.shift()||[];
+  return rows.map(values=>Object.fromEntries(headers.map((header,index)=>[header,values[index]||""])));
+}
+
+async function loadCatalog(){
+  try{const response=await fetch("data/programs.csv");if(!response.ok)throw new Error("catalog");catalogPrograms=parseCsv(await response.text()).filter(item=>item.program_name);populateMacros();renderCatalog()}catch(error){$("#catalogCount").textContent="недоступен";$("#catalogList").innerHTML='<div class="catalog-empty">Каталог временно недоступен. Воспользуйтесь персональным подбором или обратитесь к специалисту.</div>'}
+}
+
+function populateMacros(){
+  const macros=[...new Set(catalogPrograms.map(item=>item.macrogroup_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+  $("#macroFilter").insertAdjacentHTML("beforeend",macros.map(item=>`<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join(""));
+}
+
+function filteredCatalog(){
+  const query=$("#catalogSearch").value.trim().toLowerCase();const level=$("#levelFilter").value;const macro=$("#macroFilter").value;
+  return catalogPrograms.filter(item=>(!query||`${item.program_name} ${item.institution_name} ${item.fgos_code}`.toLowerCase().includes(query))&&(level==="all"||item.education_level===level)&&(macro==="all"||item.macrogroup_name===macro));
+}
+
+function renderCatalog(reset=false){
+  if(reset)shownCount=20;const list=filteredCatalog();$("#catalogCount").textContent=`найдено: ${list.length}`;
+  $("#catalogList").innerHTML=list.length?list.slice(0,shownCount).map((item,index)=>`<button class="catalog-row" type="button" data-catalog-index="${index}"><span><strong>${escapeHtml(clean(item.program_name))}</strong><small>${escapeHtml(clean(item.macrogroup_name))}</small></span><span><strong>${escapeHtml(clean(item.institution_name))}</strong><small>${escapeHtml(clean(item.region))}</small></span><span><strong>${escapeHtml(clean(item.education_level))}</strong><small>${escapeHtml(clean(item.fgos_code))}</small></span><span><strong>${budgetLabel(item.budget_seat)}</strong><small>бюджет</small></span><span class="arrow">›</span></button>`).join(""):'<div class="catalog-empty">По заданным условиям программы не найдены. Измените запрос или сбросьте фильтры.</div>';
+  $$("[data-catalog-index]").forEach(button=>button.addEventListener("click",()=>openCatalogProgram(list[Number(button.dataset.catalogIndex)])));
+  $("#loadMore").hidden=shownCount>=list.length;
+}
+
+function budgetLabel(value){const normalized=clean(value).toLowerCase();if(normalized==="да")return"есть";if(/^\d+$/.test(normalized))return normalized;return"уточнить"}
+function clean(value){return String(value||"").replace(/\s+/g," ").trim()}
+function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]))}
+
+$("#catalogSearch").addEventListener("input",()=>renderCatalog(true));
+$("#levelFilter").addEventListener("change",()=>renderCatalog(true));
+$("#macroFilter").addEventListener("change",()=>renderCatalog(true));
+$("#resetFilters").addEventListener("click",()=>{$("#catalogSearch").value="";$("#levelFilter").value="all";$("#macroFilter").value="all";renderCatalog(true)});
+$("#loadMore").addEventListener("click",()=>{shownCount+=20;renderCatalog()});
+
+function openCatalogProgram(item){
+  const url=/^https?:\/\//.test(item.URL||"")?item.URL:"";
+  $("#dialogBody").innerHTML=`<div class="dialog-content"><span class="provider">${escapeHtml(clean(item.education_level))}</span><h2 id="dialogTitle">${escapeHtml(clean(item.program_name))}</h2><p>${escapeHtml(clean(item.institution_name))}</p><div class="dialog-section"><h3>Основные сведения</h3><p>${escapeHtml(clean(item.macrogroup_name))} · ${escapeHtml(clean(item.region))} · код ${escapeHtml(clean(item.fgos_code)||"не указан")}</p></div><div class="dialog-section"><h3>Бюджетные места</h3><p>${escapeHtml(budgetLabel(item.budget_seat))}</p></div><div class="dialog-note">Сведения необходимо подтвердить на официальном сайте образовательной организации.</div><div class="dialog-actions">${url?`<a class="button" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Официальный источник</a>`:""}<a class="button button--ghost" href="#consultation" data-close-dialog>Обсудить со специалистом</a></div></div>`;
+  showDialog();
+}
+
+function openProgram(program){
+  $("#dialogBody").innerHTML=`<div class="dialog-content"><span class="provider ${program.priority?"rgsu":""}">${program.priority?"Программа РГСУ":"Партнёрская программа"}</span><h2 id="dialogTitle">${escapeHtml(program.title)}</h2><p>${escapeHtml(program.owner)} · ${program.level} · ${program.format}</p><div class="dialog-section"><h3>Почему включена в подбор</h3><ul>${program.reasons.map(reason=>`<li>${escapeHtml(reason)}</li>`).join("")}</ul></div><div class="dialog-section"><h3>Результат обучения</h3><p>${escapeHtml(program.result)}</p></div><div class="dialog-note"><strong>Требует проверки:</strong> ${escapeHtml(program.caution)}</div><div class="dialog-actions"><a class="button" href="#consultation" data-close-dialog>Обсудить со специалистом</a></div></div>`;
+  showDialog();
+}
+
+function showDialog(){const dialog=$("#programDialog");dialog.showModal();$$('[data-close-dialog]',dialog).forEach(link=>link.addEventListener("click",()=>dialog.close()))}
+$(".dialog-close").addEventListener("click",()=>$("#programDialog").close());
+$("#programDialog").addEventListener("click",event=>{if(event.target===$("#programDialog"))$("#programDialog").close()});
+
+$("#consultationForm").addEventListener("submit",event=>{event.preventDefault();event.currentTarget.innerHTML='<div class="form-success" role="status"><strong>Сценарий обращения показан</strong><p>В демонстрационной версии данные не отправляются. В рабочем сервисе здесь появятся номер обращения и ожидаемый срок ответа.</p></div>'});
+
+updateGoalCards();
+loadCatalog();

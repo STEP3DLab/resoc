@@ -1,114 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ресоциализация — каталог образовательных программ</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Демонстрационный образовательный навигатор проекта «Ресоциализация» РГСУ.">
+  <title>Ресоциализация — образовательный навигатор РГСУ</title>
+  <link rel="icon" href="assets/rgsu-logo.png">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <a class="skip-link" href="#catalog">Перейти к каталогу</a>
-  <header class="hero">
-    <div class="container">
-      <div class="hero-top">
-        <p class="eyebrow">Проект «Ресоциализация»</p>
-        <a
-          class="rgsu-logo"
-          href="https://rgsu.net/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Открыть сайт РГСУ"
-        >
-          <img
-            src="https://upload.wikimedia.org/wikipedia/ru/archive/4/42/20240520114700%21%D0%A0%D0%93%D0%A1%D0%A3_%D0%BB%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF.png"
-            alt="Логотип РГСУ"
-            loading="lazy"
-          />
-        </a>
-      </div>
-      <h1>Каталог образовательных программ</h1>
-      <p class="lead">
-        Единое пространство для поиска образовательных программ, доступных участникам проекта.
-        Каталог обновляется на основе официальных данных и поддерживает быстрый поиск.
-      </p>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+
+  <header class="site-header">
+    <div class="notice"><div class="shell"><span>Проект «Ресоциализация»</span><span>Демонстрационная версия · данные не сохраняются</span></div></div>
+    <div class="shell header-row">
+      <a class="brand" href="#top" aria-label="РГСУ — к началу страницы">
+        <img src="assets/rgsu-logo.png" alt="Логотип Российского государственного социального университета">
+        <span><strong>Ресоциализация</strong><small>образовательный навигатор РГСУ</small></span>
+      </a>
+      <nav aria-label="Разделы"><a href="#recommendations">Рекомендации</a><a href="#catalog">Каталог</a><a href="#consultation">Помощь специалиста</a></nav>
+      <a class="button button--small" href="#top">Начать подбор</a>
     </div>
   </header>
 
-  <main class="container" id="catalog">
-    <section class="controls" aria-label="Поиск и фильтры">
-      <div class="controls-header">
-        <div>
-          <h2>Поиск программы</h2>
-          <p>Уточните запрос и фильтры, чтобы быстро найти подходящее направление.</p>
-        </div>
-        <div class="stats" aria-live="polite">
-          <div>
-            Показано программ: <span id="resultsCount">0</span> из <span id="totalCount">0</span>
-          </div>
-          <div class="active-filters" id="activeFilters" aria-label="Активные фильтры"></div>
-        </div>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="shell hero-copy">
+        <div><span class="eyebrow">Образовательный навигатор</span><h1>Найдите подходящий путь обучения за четыре шага</h1></div>
+        <p>Опишите цель и опыт. Навигатор уточнит условия, предложит варианты и объяснит каждую рекомендацию.</p>
       </div>
-      <div class="controls-grid">
-        <label class="field search-field">
-          <span>Поиск по названию, вузу или коду ФГОС</span>
-          <div class="input-wrapper">
-            <input
-              id="searchInput"
-              type="search"
-              placeholder="Например, Информатика, 09.03.01 или Баумана"
-              autocomplete="off"
-            />
-            <button class="clear-button" type="button" id="clearSearch" aria-label="Очистить поиск">
-              ✕
-            </button>
-          </div>
-          <small class="helper">Совет: можно вводить несколько слов через пробел.</small>
-        </label>
-        <label class="field">
-          <span>Формат обучения</span>
-          <select id="formatSelect">
-            <option value="">Все форматы</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Направление</span>
-          <select id="directionSelect">
-            <option value="">Все направления</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Регион</span>
-          <select id="regionSelect">
-            <option value="">Все регионы</option>
-          </select>
-        </label>
-        <label class="field checkbox-field">
-          <span>Дополнительно</span>
-          <span class="checkbox-control">
-            <input id="budgetToggle" type="checkbox" />
-            Только с бюджетными местами
-          </span>
-        </label>
-        <div class="actions">
-          <button class="reset-button" type="button" id="resetFilters">Сбросить фильтры</button>
+
+      <div class="shell wizard" aria-labelledby="wizard-title">
+        <div class="wizard-head">
+          <div class="navigator-mark" aria-hidden="true">Н</div>
+          <div><strong id="wizard-title">Навигатор РГСУ</strong><small>предварительный подбор</small></div>
+          <span class="step-badge" id="stepBadge">шаг 1 из 4</span>
         </div>
+        <ol class="stepper" aria-label="Этапы подбора">
+          <li class="is-active"><span>1</span><small>Цель</small></li>
+          <li><span>2</span><small>Опыт</small></li>
+          <li><span>3</span><small>Условия</small></li>
+          <li><span>4</span><small>Проверка</small></li>
+        </ol>
+
+        <form id="wizardForm" novalidate>
+          <section class="wizard-step is-active" data-step="1">
+            <div class="assistant-message"><span aria-hidden="true">Н</span><p>Какой результат для вас сейчас важнее? Выбор можно изменить позднее.</p></div>
+            <fieldset class="goal-group"><legend>Ближайшая цель</legend>
+              <label class="goal-card"><input type="radio" name="goal" value="fast"><span><strong>Выйти на работу быстрее</strong><small>короткие программы и практический результат</small></span></label>
+              <label class="goal-card is-selected"><input type="radio" name="goal" value="new" checked><span><strong>Получить новую профессию</strong><small>смена направления с учётом опыта</small></span></label>
+              <label class="goal-card"><input type="radio" name="goal" value="continue"><span><strong>Продолжить образование</strong><small>последовательный образовательный путь</small></span></label>
+            </fieldset>
+            <label class="field field--wide"><span>Исходная ситуация</span><textarea id="request" rows="4" placeholder="Например: работал с техникой и руководил небольшой командой; хочу освоить гражданскую специальность без отрыва от работы"></textarea><small>Не указывайте сведения о здоровье, документах, службе и другие чувствительные данные.</small><em class="error" id="requestError" role="alert"></em></label>
+          </section>
+
+          <section class="wizard-step" data-step="2">
+            <div class="assistant-message"><span aria-hidden="true">Н</span><p>Уточним образование и опыт, чтобы исключить программы с неподходящими условиями поступления.</p></div>
+            <div class="field-grid">
+              <label class="field"><span>Текущий уровень образования</span><select id="education"><option value="not-set">Уточнить позднее</option><option value="school">Среднее общее</option><option value="spo">Среднее профессиональное</option><option value="vo">Высшее</option></select></label>
+              <label class="field"><span>Опыт, который важно учесть</span><input id="experience" type="text" placeholder="Техника, управление, работа с людьми…"></label>
+            </div>
+            <div class="extraction"><strong>Что учтёт навигатор</strong><div id="signals"><span>цель сформулирована</span><span>опыт требует уточнения</span></div><small>В рабочей версии каждый признак можно будет подтвердить или изменить.</small></div>
+          </section>
+
+          <section class="wizard-step" data-step="3">
+            <div class="assistant-message"><span aria-hidden="true">Н</span><p>Укажите допустимые условия. Они будут применены как ограничения, а не как второстепенные пожелания.</p></div>
+            <div class="field-grid">
+              <label class="field"><span>Регион обучения</span><select id="district"><option value="all">Любой / онлайн</option><option value="Москва">Москва</option><option value="ЦФО">Центральный федеральный округ</option><option value="ПФО">Приволжский федеральный округ</option><option value="УФО">Уральский федеральный округ</option></select></label>
+              <label class="field"><span>Предпочтительный формат</span><select id="studyFormat"><option value="all">Любой</option><option value="Очно">Очно</option><option value="Очно-заочно">Очно-заочно</option><option value="Онлайн">Онлайн</option></select></label>
+            </div>
+            <div class="constraint-note"><strong>Порядок обработки</strong><p>Сначала проверяются обязательные условия, затем сравниваются подходящие программы. Близкие по релевантности программы РГСУ получают ограниченный приоритет.</p></div>
+          </section>
+
+          <section class="wizard-step" data-step="4">
+            <div class="assistant-message"><span aria-hidden="true">Н</span><p>Проверьте исходные данные. Результат будет предварительным: условия поступления подтверждает образовательная организация.</p></div>
+            <dl class="summary" id="summary"></dl>
+            <label class="confirm"><input type="checkbox" id="confirm"><span>Понимаю, что это предварительный подбор и окончательные условия необходимо проверить.</span></label>
+            <em class="error" id="confirmError" role="alert"></em>
+          </section>
+
+          <div class="wizard-actions"><button class="button button--ghost" type="button" id="backButton" hidden>Назад</button><button class="button" type="button" id="nextButton">Продолжить</button></div>
+        </form>
       </div>
     </section>
 
-    <section class="grid" id="programGrid" aria-live="polite"></section>
+    <section class="recommendations" id="recommendations">
+      <div class="shell section-head"><div><span class="section-number">01</span><h2>Персональные рекомендации</h2><p id="recommendationIntro">Пройдите четыре шага — навигатор покажет три варианта и объяснит основания выбора.</p></div><span class="result-count" id="recommendationCount">4 шага</span></div>
+      <div class="shell recommendation-placeholder" id="recommendationPlaceholder"><span aria-hidden="true">✓</span><div><strong>Проверяемая логика вместо случайного совета</strong><p>Сначала навигатор учитывает обязательные условия, затем формирует ранжированный список и показывает причины.</p></div><a class="button" href="#top">Начать подбор</a></div>
+      <div class="shell recommendation-grid" id="recommendationGrid" hidden></div>
+    </section>
 
-    <section class="empty-state" id="emptyState" hidden>
-      <h2>Программы не найдены</h2>
-      <p>Попробуйте изменить запрос или сбросить фильтр формата обучения.</p>
+    <section class="catalog" id="catalog">
+      <div class="shell section-head"><div><span class="section-number">02</span><h2>Каталог программ</h2><p>Поиск по названию, уровню, региону и одной из десяти макрогрупп.</p></div><span class="result-count" id="catalogCount">загрузка…</span></div>
+      <div class="shell filters">
+        <label class="search"><span class="sr-only">Поиск по каталогу</span><input id="catalogSearch" type="search" placeholder="Название программы, организация или код"></label>
+        <label><span class="sr-only">Уровень</span><select id="levelFilter"><option value="all">Все уровни</option><option value="ВО">ВО</option><option value="СПО">СПО</option><option value="ДПО">ДПО</option></select></label>
+        <label><span class="sr-only">Макрогруппа</span><select id="macroFilter"><option value="all">Все направления</option></select></label>
+        <button class="button button--ghost" id="resetFilters" type="button">Сбросить</button>
+      </div>
+      <div class="shell catalog-list" id="catalogList" aria-live="polite"></div>
+      <div class="shell load-more-wrap"><button class="button button--ghost" id="loadMore" type="button" hidden>Показать ещё</button></div>
+      <p class="shell disclaimer">Сведения в каталоге используются для демонстрации. Перед принятием решения проверьте программу, сроки и правила приёма на официальном сайте образовательной организации.</p>
+    </section>
+
+    <section class="route">
+      <div class="shell section-head section-head--light"><div><span class="section-number">03</span><h2>От выбора — к следующему действию</h2><p>Сервис соединяет подбор с консультацией, поступлением, обучением и занятостью.</p></div></div>
+      <ol class="shell route-list"><li><span>01</span><strong>Уточнение</strong><small>цель и условия</small></li><li><span>02</span><strong>Подбор</strong><small>варианты и причины</small></li><li><span>03</span><strong>Поступление</strong><small>документы и поддержка</small></li><li><span>04</span><strong>Обучение</strong><small>практика и сопровождение</small></li><li><span>05</span><strong>Занятость</strong><small>работодатель или рост</small></li></ol>
+    </section>
+
+    <section class="consultation" id="consultation">
+      <div class="shell consultation-grid">
+        <div><span class="section-number">04</span><h2>Нужна проверка? Подключите специалиста</h2><p>Консультант поможет уточнить условия поступления, документы и реалистичный следующий шаг.</p><ul><li>консультация по программе</li><li>проверка списка документов</li><li>согласование следующего действия</li></ul></div>
+        <form id="consultationForm" class="consultation-form"><strong>Запросить консультацию</strong><small>демонстрационный контур</small><label class="field"><span>Как к вам обращаться?</span><input required name="name" autocomplete="name" placeholder="Имя"></label><label class="field"><span>Контакт для ответа</span><input required name="contact" autocomplete="email" placeholder="Телефон или электронная почта"></label><label class="field"><span>Тема обращения</span><select name="topic"><option>Выбор программы</option><option>Поступление и документы</option><option>Трудоустройство</option></select></label><button class="button" type="submit">Показать отправку</button><small>Персональные данные в прототипе не сохраняются и не передаются.</small></form>
+      </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>Данные предоставлены для информационного использования. Проверяйте актуальность на сайте образовательной организации.</p>
-    </div>
-  </footer>
+  <footer><div class="shell footer-row"><div><strong>РГСУ · Ресоциализация</strong><small>Демонстрационный прототип для экспертного тестирования</small></div><p>© 2026 Проектный центр «Технопарк РГСУ»</p></div></footer>
 
+  <dialog id="programDialog" aria-labelledby="dialogTitle"><button class="dialog-close" type="button" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
   <script src="js/main.js"></script>
 </body>
 </html>
