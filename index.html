@@ -19,7 +19,7 @@
         <span><strong>Ресоциализация</strong><small>образовательный навигатор РГСУ</small></span>
       </a>
       <nav aria-label="Разделы"><a href="#recommendations">Рекомендации</a><a href="#catalog">Каталог</a><a href="#consultation">Помощь специалиста</a></nav>
-      <a class="button button--small" href="#top">Начать подбор</a>
+      <button class="button button--small button--ghost" id="accessibilityButton" type="button" aria-haspopup="dialog">Доступность</button>
     </div>
   </header>
 
@@ -84,6 +84,13 @@
       </div>
     </section>
 
+    <section class="inclusive" id="accessibility">
+      <div class="shell inclusive-grid">
+        <div><span class="section-number">Доступность</span><h2>Один интерфейс — разные способы работы</h2><p>Не нужно сообщать диагноз. Выберите удобный профиль или настройте отображение вручную — настройки сохраняются только на этом устройстве.</p><button class="button button--ghost" id="accessibilitySectionButton" type="button">Настроить интерфейс</button></div>
+        <div class="inclusive-cards"><article><strong>Зрение</strong><small>крупный текст, высокий контраст, подчёркнутые ссылки</small></article><article><strong>Моторика</strong><small>крупные цели, клавиатура, отсутствие таймеров</small></article><article><strong>Когнитивные особенности</strong><small>один шаг за раз, простой язык, меньше деталей</small></article><article><strong>Слух и речь</strong><small>текстовые инструкции; звук и голос не обязательны</small></article></div>
+      </div>
+    </section>
+
     <section class="recommendations" id="recommendations">
       <div class="shell section-head"><div><span class="section-number">01</span><h2>Персональные рекомендации</h2><p id="recommendationIntro">Пройдите четыре шага — навигатор покажет три варианта и объяснит основания выбора.</p></div><span class="result-count" id="recommendationCount">4 шага</span></div>
       <div class="shell recommendation-placeholder" id="recommendationPlaceholder"><span aria-hidden="true">✓</span><div><strong>Проверяемая логика вместо случайного совета</strong><p>Сначала навигатор учитывает обязательные условия, затем формирует ранжированный список и показывает причины.</p></div><a class="button" href="#top">Начать подбор</a></div>
@@ -116,9 +123,10 @@
     </section>
   </main>
 
-  <footer><div class="shell footer-row"><div><strong>РГСУ · Ресоциализация</strong><small>Демонстрационный прототип для экспертного тестирования</small></div><p>© 2026 Проектный центр «Технопарк РГСУ»</p></div></footer>
+  <footer><div class="shell footer-row"><div><strong>РГСУ · Ресоциализация</strong><small>Демонстрационный прототип для экспертного тестирования</small></div><nav><button type="button" id="accessibilityFooterButton">Настройки доступности</button><a href="report.pdf">Техническое задание, PDF</a></nav><p>© 2026 Проектный центр «Технопарк РГСУ»</p></div></footer>
 
   <dialog id="programDialog" aria-labelledby="dialogTitle"><button class="dialog-close" type="button" aria-label="Закрыть">×</button><div id="dialogBody"></div></dialog>
+  <dialog id="accessibilityDialog" aria-labelledby="accessibilityTitle"><button class="dialog-close accessibility-close" type="button" aria-label="Закрыть настройки">×</button><div class="accessibility-panel"><span class="provider rgsu">Настройки интерфейса</span><h2 id="accessibilityTitle">Выберите удобный способ работы</h2><p>Профили не являются медицинской анкетой. Можно включить несколько настроек одновременно.</p><h3>Быстрые профили</h3><div class="profile-buttons"><button type="button" data-profile="vision"><strong>Нарушения зрения</strong><small>очень крупный текст и высокий контраст</small></button><button type="button" data-profile="motor"><strong>Нарушения моторики</strong><small>крупные элементы и минимум движения</small></button><button type="button" data-profile="cognitive"><strong>Когнитивные особенности</strong><small>простой режим и один шаг за раз</small></button></div><h3>Отдельные настройки</h3><div class="a11y-settings"><label><span>Размер текста</span><select id="textSize"><option value="normal">Обычный</option><option value="large">Крупный</option><option value="xlarge">Очень крупный</option></select></label><label><span>Высокий контраст</span><input type="checkbox" id="highContrast"></label><label><span>Крупные элементы управления</span><input type="checkbox" id="largeTargets"></label><label><span>Подчёркивать ссылки</span><input type="checkbox" id="underlineLinks"></label><label><span>Упрощённое содержание</span><input type="checkbox" id="simpleMode"></label><label><span>Минимум движения</span><input type="checkbox" id="reducedMotion"></label></div><div class="dialog-actions"><button class="button button--ghost" type="button" id="resetAccessibility">Сбросить</button><button class="button" type="button" id="closeAccessibility">Готово</button></div></div></dialog>
   <script src="js/main.js"></script>
 </body>
 </html>

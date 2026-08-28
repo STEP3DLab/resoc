@@ -139,3 +139,40 @@ $("#consultationForm").addEventListener("submit",event=>{event.preventDefault();
 
 updateGoalCards();
 loadCatalog();
+
+const accessibilityDefaults={textSize:"normal",highContrast:false,largeTargets:false,underlineLinks:false,simpleMode:false,reducedMotion:false};
+let accessibilitySettings={...accessibilityDefaults};
+try{accessibilitySettings={...accessibilityDefaults,...JSON.parse(localStorage.getItem("resoc-accessibility")||"{}")}}catch(error){accessibilitySettings={...accessibilityDefaults}}
+
+function applyAccessibility(){
+  const root=document.documentElement;
+  root.dataset.textSize=accessibilitySettings.textSize;
+  root.dataset.contrast=accessibilitySettings.highContrast?"high":"standard";
+  root.dataset.largeTargets=String(accessibilitySettings.largeTargets);
+  root.dataset.links=String(accessibilitySettings.underlineLinks);
+  root.dataset.simple=String(accessibilitySettings.simpleMode);
+  root.dataset.motion=accessibilitySettings.reducedMotion?"reduced":"standard";
+  $("#textSize").value=accessibilitySettings.textSize;
+  $("#highContrast").checked=accessibilitySettings.highContrast;
+  $("#largeTargets").checked=accessibilitySettings.largeTargets;
+  $("#underlineLinks").checked=accessibilitySettings.underlineLinks;
+  $("#simpleMode").checked=accessibilitySettings.simpleMode;
+  $("#reducedMotion").checked=accessibilitySettings.reducedMotion;
+  try{localStorage.setItem("resoc-accessibility",JSON.stringify(accessibilitySettings))}catch(error){}
+}
+
+function openAccessibility(){applyAccessibility();$("#accessibilityDialog").showModal()}
+function closeAccessibility(){$("#accessibilityDialog").close()}
+[$("#accessibilityButton"),$("#accessibilitySectionButton"),$("#accessibilityFooterButton")].forEach(button=>button.addEventListener("click",openAccessibility));
+[$("#closeAccessibility"),$(".accessibility-close")].forEach(button=>button.addEventListener("click",closeAccessibility));
+$("#accessibilityDialog").addEventListener("click",event=>{if(event.target===$("#accessibilityDialog"))closeAccessibility()});
+$("#textSize").addEventListener("change",event=>{accessibilitySettings.textSize=event.target.value;applyAccessibility()});
+[["highContrast","highContrast"],["largeTargets","largeTargets"],["underlineLinks","underlineLinks"],["simpleMode","simpleMode"],["reducedMotion","reducedMotion"]].forEach(([id,key])=>$("#"+id).addEventListener("change",event=>{accessibilitySettings[key]=event.target.checked;applyAccessibility()}));
+$$('[data-profile]').forEach(button=>button.addEventListener("click",()=>{
+  if(button.dataset.profile==="vision")accessibilitySettings={...accessibilityDefaults,textSize:"xlarge",highContrast:true,underlineLinks:true};
+  if(button.dataset.profile==="motor")accessibilitySettings={...accessibilityDefaults,largeTargets:true,underlineLinks:true,reducedMotion:true};
+  if(button.dataset.profile==="cognitive")accessibilitySettings={...accessibilityDefaults,textSize:"large",largeTargets:true,simpleMode:true,reducedMotion:true};
+  applyAccessibility();
+}));
+$("#resetAccessibility").addEventListener("click",()=>{accessibilitySettings={...accessibilityDefaults};applyAccessibility()});
+applyAccessibility();
