@@ -53,3 +53,5 @@ html[data-large=true] .coverage-university{grid-template-columns:1fr}html[data-l
 .copy-dialog{width:min(620px,calc(100vw - 32px));padding:32px}.copy-dialog textarea{width:100%;min-height:220px;resize:vertical;padding:16px;border:1px solid var(--line);border-radius:12px;font:inherit}.coverage-university h3,.inst-name{overflow-wrap:anywhere}
 
 .coverage-method{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}.coverage-method summary{cursor:pointer;min-height:44px;padding:12px 0;font-weight:550}.coverage-method li{margin:9px 0;line-height:1.6}.coverage-method p{line-height:1.6}
+
+.chat-composer{position:relative}.chat-composer>.voice-button{position:absolute;right:66px;bottom:10px;z-index:1}.chat-composer textarea{padding-right:60px}.chat-composer>.voice-button[data-state=listening],.chat-composer>.voice-button[data-state=processing],.chat-composer>.voice-button[data-state=success],.chat-composer>.voice-button[data-state=error]{max-width:min(190px,calc(100% - 130px))}

@@ -62,3 +62,19 @@ dialog h2,.detail-grid dd,.compare-mobile-program h3,.comparison-criterion dt,.c
 .inst-label{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
 
 .program-variants{margin:20px 0;padding:16px;border:1px solid var(--line);border-radius:12px}.program-variants summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:550}.program-variants dl>div{padding:12px 0;border-bottom:1px solid var(--line)}.program-variants dt{font-size:.875rem;color:var(--muted);overflow-wrap:anywhere}.program-variants dd{margin:5px 0 0;overflow-wrap:anywhere}
+
+/* Голосовой ввод: нативное распознавание речи браузера, без хранения аудио сайтом. */
+.field:has(>textarea[data-voice-input]){position:relative}.field>textarea[data-voice-input]{padding-right:60px}.field>textarea+.voice-button{position:absolute;right:8px;top:32px}
+.voice-button{display:inline-flex;align-items:center;justify-content:center;gap:0;min-width:44px;height:44px;padding:0 11px;border:1px solid #d7deed;border-radius:10px;background:#f5f7fc;color:#5d6988;flex-shrink:0;overflow:hidden;transition:color .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease}
+.voice-button:hover{color:var(--blue);border-color:#b9c4e8;background:#eef2ff}.voice-button:focus-visible{outline:3px solid #aab9ff;outline-offset:2px}.voice-button .ui-icon{width:20px;height:20px;flex-shrink:0}
+.voice-button-label{max-width:0;opacity:0;white-space:nowrap;overflow:hidden;font-size:.75rem;font-weight:600;transition:max-width .2s ease,opacity .15s ease,margin .2s ease}
+.voice-button[data-state=listening],.voice-button[data-state=processing],.voice-button[data-state=success],.voice-button[data-state=error]{gap:7px;width:auto;max-width:min(190px,45vw)}
+.voice-button[data-state=listening] .voice-button-label,.voice-button[data-state=processing] .voice-button-label,.voice-button[data-state=success] .voice-button-label,.voice-button[data-state=error] .voice-button-label{max-width:145px;opacity:1}
+.voice-button[data-state=listening]{color:#a52e3e;border-color:#df9aa5;background:#fff0f2;box-shadow:0 0 0 4px #d64d6215}.voice-button[data-state=listening] .ui-icon{animation:voice-pulse 1.15s ease-in-out infinite}
+.voice-button[data-state=processing]{color:#5b6785;background:#f1f3f8}.voice-button[data-state=success]{color:#236b51;border-color:#9fcfbb;background:#effaf5}.voice-button[data-state=error]{color:#9b3342;border-color:#e3a8b1;background:#fff2f4}
+.search-field>.voice-button{margin-left:auto}.search-field input+.voice-button+.search-clear{margin-left:-6px}.search-field .voice-button-label{overflow:hidden;text-overflow:ellipsis}
+@keyframes voice-pulse{50%{transform:scale(1.12)}}
+@media(max-width:550px){.search-field>.voice-button[data-state=success],.search-field>.voice-button[data-state=error]{max-width:44px}.search-field>.voice-button[data-state=success] .voice-button-label,.search-field>.voice-button[data-state=error] .voice-button-label{display:none}}
+html[data-contrast=true] .voice-button{border-color:#000;background:#fff;color:#000}html[data-contrast=true] .voice-button[data-state=listening]{background:#000;color:#fff}.large-targets .voice-button{min-width:52px;height:52px}
+@media(prefers-reduced-motion:reduce){.voice-button,.voice-button-label{transition:none}.voice-button[data-state=listening] .ui-icon{animation:none}}
+@media print{.voice-button{display:none!important}}

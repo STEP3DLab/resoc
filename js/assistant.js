@@ -3,6 +3,7 @@ import {programLabel} from './catalog-view-model.js';
 import {icon} from './icons.js';
 import {runtime} from './runtime-config.js';
 import {checkAssistantConnection,connectionCopy} from './assistant-connection.js';
+import {enhanceVoiceInputs,stopVoiceInput} from './voice-input.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const state={messages:[],draft:'',busy:false,connection:{kind:'checking'},error:'',profile:{education:'',district:'',region:'',format:'',themes:[],goal:'new',budget:false,maxMonths:''},proposal:null,imported:null,programs:[],kind:'explore',hasAnswer:false,stale:false,controller:null};
@@ -25,6 +26,8 @@ function compactCard(p){return `<button class="match-card" data-ai-program="${es
 
 function renderShell(){
   host.innerHTML=`<div class="assistant-workspace" id="assistantWorkspace" data-instance="${mountToken}"><section class="chat-surface" aria-label="AI-помощник"><div class="chat-toolbar"><div><span class="assistant-mini" aria-hidden="true">✧</span><strong>AI-помощник</strong></div><span class="ai-status" id="connectionStatus" role="status"></span><button class="clear-chat" id="clearChat" aria-label="Начать новый диалог" title="Новый диалог">↺</button></div><div class="chat-welcome" id="chatWelcome"><h1 class="assistant-title">Помощник по выбору обучения</h1><p>Обсудите планы, уточните условия и сравните программы из каталога.</p><div class="conversation-starters" id="chatStarters">${suggestions.map((text,i)=>`<button data-starter="${i}"><span>${String(i+1).padStart(2,'0')}</span>${text}<span aria-hidden="true">↗</span></button>`).join('')}</div></div><div class="assistant-state-box" id="connectionNotice"><h2 id="connectionTitle"></h2><p id="connectionText"></p><div class="offline-actions"><a class="primary" href="#navigator">${icon('route')}Подобрать по шагам</a><a class="secondary" href="#catalog">Открыть каталог ${icon('arrow')}</a></div><button class="text-link" id="retryConnection">Проверить ещё раз</button></div><div id="importProfile" class="chat-import" hidden></div><div class="conversation" id="conversation"><div class="chat-history assistant-log" id="chatLog" role="log" aria-label="Диалог с помощником" aria-live="off" aria-relevant="additions"></div></div><div id="profileProposal" class="profile-proposal" hidden></div><div class="assistant-progress" id="assistantProgress" role="status" hidden></div><div class="composer-area" id="composerArea"><p class="chat-error" id="chatError" role="alert" hidden></p><form class="chat-composer" id="chatForm"><label class="sr-only" for="chatInput">Сообщение AI-помощнику</label><textarea id="chatInput" rows="2" maxlength="1800" placeholder="Например: есть техническое образование, хочу освоить IT…"></textarea><div class="composer-bottom"><span>Ctrl + Enter — отправить</span><button class="send-message" id="sendMessage" type="submit" aria-label="Отправить сообщение">↑</button></div></form><p class="chat-privacy">После отправки сообщение и условия передаются AI-провайдеру. Не указывайте личные и медицинские сведения. История остаётся в этой вкладке.</p></div></section><aside class="assistant-context"><span class="eyebrow">УСЛОВИЯ ПОДБОРА</span><h2>Что для вас важно</h2><p class="context-intro">Условия будут переданы помощнику вместе с вашим сообщением.</p><div class="context-fields"><label>Образование<select id="aiEducation">${choices(education,state.profile.education,'Выберите уровень')}</select></label><label>Федеральный округ<select id="aiDistrict">${choices(districts,state.profile.district,'Любой федеральный округ')}</select></label><label>Регион<select id="aiRegion">${choices(Object.keys(REGION_DISTRICTS),state.profile.region,'Любой регион')}</select></label><label>Предельный срок<select id="aiMaxMonths">${choices({6:'До 6 месяцев',12:'До 1 года',24:'До 2 лет',48:'До 4 лет'},state.profile.maxMonths,'Без ограничения срока')}</select></label><label>Форма обучения<select id="aiFormat">${choices(formats,state.profile.format,'Любая форма')}</select></label></div><div class="matches-heading"><h3 id="matchesTitle">Для знакомства с каталогом</h3><span id="matchesCount"></span></div><div class="matches-list" id="matchesList"></div><a class="all-programs" href="#catalog">Все ${context.catalog.programs.length} записей ${icon('arrow')}</a><p class="context-footnote">Набор, стоимость и условия поступления подтверждает вуз.</p></aside></div>`;
+  $('#chatInput').dataset.voiceInput='';
+  if(enhanceVoiceInputs(host))$('.chat-privacy').textContent='После отправки сообщение и условия передаются AI-провайдеру. Сайт не сохраняет аудио; голос распознаёт служба браузера. Не указывайте личные и медицинские сведения. История остаётся в этой вкладке.';
   $('#chatInput').value=state.draft;
   for(const message of state.messages)appendMessage(message,false);
   $('#chatLog').setAttribute('aria-live','polite');
@@ -93,6 +96,7 @@ function update(){
   $('#chatWelcome').hidden=state.messages.length>0;
   $('#composerArea').hidden=!available()&&!state.draft&&!state.messages.length;
   $('#chatInput').readOnly=state.busy;
+  const voiceButton=$('[data-voice-for="chatInput"]');if(voiceButton)voiceButton.disabled=state.busy;
   const sendButton=$('#sendMessage');sendButton.disabled=!state.busy&&!available();sendButton.type=state.busy?'button':'submit';sendButton.textContent=state.busy?'■':'↑';sendButton.setAttribute('aria-label',state.busy?'Остановить ответ':'Отправить сообщение');
   $('#clearChat').disabled=state.busy||!state.messages.length;
   $('#chatError').hidden=!state.error;$('#chatError').textContent=state.error;
@@ -104,6 +108,7 @@ function bind(){
   const input=$('#chatInput');
   input.oninput=()=>{state.draft=input.value};
   input.onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}};
+  $('#clearChat').addEventListener('click',stopVoiceInput);
   $('#chatForm').onsubmit=e=>{e.preventDefault();send()};
   $('#sendMessage').onclick=()=>{if(state.busy)state.controller?.abort()};
   $('#retryConnection').onclick=checkConnection;
@@ -122,6 +127,7 @@ async function checkConnection(){
 
 async function send(){
   if(state.busy||!available())return;
+  stopVoiceInput();
   const text=state.draft.trim();if(!text){$('#chatInput')?.focus();return}
   const userMessage={role:'user',content:text};
   state.messages.push(userMessage);appendMessage(userMessage);state.draft='';state.busy=true;state.error='';state.proposal=null;state.controller=new AbortController();
