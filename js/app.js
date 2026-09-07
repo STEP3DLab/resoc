@@ -271,11 +271,22 @@ if('scrollRestoration' in history)history.scrollRestoration='manual';
 window.addEventListener('hashchange',()=>{scrollPositions[current]=window.scrollY;if(current==='help'){helpView.program=null;helpView.scope=null;helpView.selection=null}capture();route(true)});
 async function fetchCatalog(){
   const compressed=runtime.platform==='github-pages';
-  const response=await fetch(compressed?'data/catalog.json.gz':'data/catalog.json');
+  if(compressed){
+    const manifestResponse=await fetch('data/catalog.manifest.json');
+    if(!manifestResponse.ok)throw new Error('catalog manifest');
+    const manifest=await manifestResponse.json();
+    if(!Array.isArray(manifest.parts)||!manifest.parts.length)throw new Error('catalog manifest');
+    const responses=await Promise.all(manifest.parts.map(part=>fetch('data/'+part)));
+    if(responses.some(response=>!response.ok))throw new Error('catalog part');
+    const chunks=await Promise.all(responses.map(response=>response.arrayBuffer()));
+    const bytes=new Uint8Array(chunks.reduce((sum,chunk)=>sum+chunk.byteLength,0));
+    let offset=0;for(const chunk of chunks){bytes.set(new Uint8Array(chunk),offset);offset+=chunk.byteLength}
+    if(typeof DecompressionStream==='undefined')throw new Error('gzip');
+    return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).json();
+  }
+  const response=await fetch('data/catalog.json');
   if(!response.ok)throw new Error('catalog');
-  if(!compressed)return response.json();
-  if(!response.body||typeof DecompressionStream==='undefined')throw new Error('gzip');
-  return new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
+  return response.json();
 }
 async function load(){try{catalog=await fetchCatalog();const ids=new Set(catalog.programs.map(p=>p.id));migratedSelection=[...new Set([...saved,...compare])].filter(id=>!ids.has(id)).map(id=>catalog.retiredRecords?.find(p=>p.id===id)||{id,title:'Прежняя запись '+id});saved=new Set([...saved].filter(id=>ids.has(id)));compare=new Set([...compare].filter(id=>ids.has(id)).slice(0,3));route()}catch{$('#main').innerHTML=empty('Каталог временно недоступен','Не удалось загрузить данные. Повторите попытку или откройте официальный каталог РГСУ.','<button class="primary" id="retry">Повторить</button> <a class="secondary" href="https://rgsu.net/education/training-programs/" target="_blank" rel="noopener noreferrer">Каталог РГСУ ↗</a>');$('#retry').onclick=load}}load();
 
