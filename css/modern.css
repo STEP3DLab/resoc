@@ -55,3 +55,5 @@ html[data-large=true] .coverage-university{grid-template-columns:1fr}html[data-l
 .coverage-method{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}.coverage-method summary{cursor:pointer;min-height:44px;padding:12px 0;font-weight:550}.coverage-method li{margin:9px 0;line-height:1.6}.coverage-method p{line-height:1.6}
 
 .chat-composer{position:relative}.chat-composer>.voice-button{position:absolute;right:66px;bottom:10px;z-index:1}.chat-composer textarea{padding-right:60px}.chat-composer>.voice-button[data-state=listening],.chat-composer>.voice-button[data-state=processing],.chat-composer>.voice-button[data-state=success],.chat-composer>.voice-button[data-state=error]{max-width:min(190px,calc(100% - 130px))}
+
+.match-institution.rgsu{display:inline-flex;align-items:center;gap:6px}.match-institution.rgsu:before{content:'';display:block;width:13px;height:19px;flex:0 0 auto;background:url('../assets/rgsu-logo.png') center/contain no-repeat}

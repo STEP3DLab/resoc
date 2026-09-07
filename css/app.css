@@ -78,3 +78,7 @@ dialog h2,.detail-grid dd,.compare-mobile-program h3,.comparison-criterion dt,.c
 html[data-contrast=true] .voice-button{border-color:#000;background:#fff;color:#000}html[data-contrast=true] .voice-button[data-state=listening]{background:#000;color:#fff}.large-targets .voice-button{min-width:52px;height:52px}
 @media(prefers-reduced-motion:reduce){.voice-button,.voice-button-label{transition:none}.voice-button[data-state=listening] .ui-icon{animation:none}}
 @media print{.voice-button{display:none!important}}
+
+/* Фирменный знак на каждом представлении программы РГСУ. */
+.rgsu-program-logo{display:block;width:17px;height:24px;object-fit:contain;flex:0 0 auto}.with-rgsu-logo{display:inline-flex!important;align-items:center;gap:7px}.inst-icon.rgsu.with-rgsu-logo{background:#fff;border-color:#cbd7e7;padding:5px}.inst-icon.rgsu .rgsu-program-logo{width:23px;height:30px}.tag.with-rgsu-logo{padding-left:6px}.tag.with-rgsu-logo .rgsu-program-logo{width:13px;height:18px}.tray-item>span.with-rgsu-logo,.recent-item>span.with-rgsu-logo{min-width:0}.tray-item .rgsu-program-logo{width:13px;height:18px;filter:brightness(0) invert(1);opacity:.9}.recent-item .rgsu-program-logo{width:14px;height:20px}
+html[data-contrast=true] .inst-icon.rgsu.with-rgsu-logo{border-color:#000}
